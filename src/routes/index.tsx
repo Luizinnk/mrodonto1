@@ -11,9 +11,8 @@ import {
   Timer,
   UserRoundCheck,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Service } from "@/lib/types";
 import { ServiceCard } from "@/components/ServiceCard";
+import { FALLBACK_SERVICES, loadServices } from "@/lib/services";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -81,16 +80,8 @@ const resultPortraits = [
 function HomePage() {
   const { data: services } = useQuery({
     queryKey: ["services-preview"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order")
-        .limit(6);
-      if (error) throw error;
-      return data as Service[];
-    },
+    queryFn: () => loadServices(6),
+    placeholderData: FALLBACK_SERVICES.slice(0, 6),
   });
 
   return (

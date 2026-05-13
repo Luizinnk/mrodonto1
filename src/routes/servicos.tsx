@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Service } from "@/lib/types";
+import { createFileRoute } from "@tanstack/react-router";
 import { ServiceCard } from "@/components/ServiceCard";
+import { FALLBACK_SERVICES, loadServices } from "@/lib/services";
 
 export const Route = createFileRoute("/servicos")({
   head: () => ({
@@ -21,31 +20,28 @@ export const Route = createFileRoute("/servicos")({
 function ServicosPage() {
   const { data: services, isLoading } = useQuery({
     queryKey: ["services-all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order");
-      if (error) throw error;
-      return data as Service[];
-    },
+    queryFn: () => loadServices(),
+    placeholderData: FALLBACK_SERVICES,
   });
 
+  const visibleServices = services?.length ? services : FALLBACK_SERVICES;
+
   return (
-    <section className="py-24 px-6 max-w-[1280px] mx-auto">
-      <div className="text-center mb-16 animate-fade-up">
+    <section className="mx-auto max-w-[1280px] px-6 py-24">
+      <div className="mb-16 text-center animate-fade-up">
         <span className="section-kicker">Nossos serviços</span>
-        <h1 className="text-5xl md:text-6xl mt-3 mb-4">Tratamentos que transformam</h1>
-        <p className="text-muted-foreground max-w-xl mx-auto font-light">
+        <h1 className="mb-4 mt-3 text-5xl md:text-6xl">Tratamentos que transformam</h1>
+        <p className="mx-auto max-w-xl font-light text-muted-foreground">
           Procedimentos com tecnologia, estética natural e atendimento personalizado.
         </p>
       </div>
 
-      {isLoading && <p className="text-center text-muted-foreground">Carregando...</p>}
+      {isLoading && !visibleServices.length && (
+        <p className="text-center text-muted-foreground">Carregando tratamentos...</p>
+      )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {services?.map((service) => (
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {visibleServices.map((service) => (
           <ServiceCard key={service.id} service={service} />
         ))}
       </div>

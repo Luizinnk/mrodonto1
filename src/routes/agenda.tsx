@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { CalendarCheck, CheckCircle2, Clock3, Loader2, UserRoundCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Service } from "@/lib/types";
 import { toast } from "sonner";
 import { PremiumServiceIcon } from "@/components/PremiumServiceIcon";
+import { FALLBACK_SERVICES, loadServices } from "@/lib/services";
 
 const searchSchema = z.object({ service: z.string().optional() });
 
@@ -48,6 +48,11 @@ const HOURS = [
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const PROFESSIONALS = [
   {
+    id: "dr-derick",
+    name: "Dr. Derick Meinelecki",
+    text: "Cirurgião-dentista CRO-PR 33538, responsável por clínica geral, facetas, botox e implantodontia.",
+  },
+  {
     id: "equipe",
     name: "Equipe MR Odontologia",
     text: "A equipe direciona seu atendimento para o profissional ideal conforme o tratamento escolhido.",
@@ -76,18 +81,12 @@ function AgendaPage() {
 
   const { data: services, isLoading: servicesLoading } = useQuery({
     queryKey: ["services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("active", true)
-        .order("sort_order");
-      if (error) throw error;
-      return data as Service[];
-    },
+    queryFn: () => loadServices(),
+    placeholderData: FALLBACK_SERVICES,
   });
 
-  const selectedService = services?.find((s) => s.slug === serviceSlug) ?? null;
+  const visibleServices = services?.length ? services : FALLBACK_SERVICES;
+  const selectedService = visibleServices.find((s) => s.slug === serviceSlug) ?? null;
   const selectedProfessional = PROFESSIONALS.find((p) => p.id === professional) ?? PROFESSIONALS[0];
 
   const { data: busy, isFetching: busyLoading } = useQuery({
@@ -217,11 +216,11 @@ function AgendaPage() {
                 title="Escolha o tratamento"
                 text="Comece selecionando o serviço desejado. Você pode ajustar depois com a equipe."
               >
-                {servicesLoading ? (
+                {servicesLoading && !visibleServices.length ? (
                   <LoadingBlock text="Carregando tratamentos" />
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {services?.map((s) => {
+                    {visibleServices.map((s) => {
                       const selected = s.slug === serviceSlug;
                       return (
                         <button

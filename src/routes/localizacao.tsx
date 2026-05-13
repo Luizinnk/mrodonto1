@@ -16,7 +16,7 @@ export const Route = createFileRoute("/localizacao")({
       { title: "Localização | MR Odontologia Estética" },
       {
         name: "description",
-        content: "Onde estamos: endereço, horário de funcionamento e contato direto pelo WhatsApp.",
+        content: "Endereço, horário de funcionamento e contato direto pelo WhatsApp.",
       },
     ],
   }),
@@ -113,16 +113,16 @@ function LocalizacaoPage() {
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] bg-[var(--petrol)] p-6 text-white shadow-[var(--shadow-luxe)]">
+            <div className="rounded-[1.75rem] border border-[var(--petrol)]/10 bg-white p-6 text-[var(--petrol)] shadow-[var(--shadow-luxe)]">
               <div className="flex items-start gap-4">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/8 text-[var(--gold-light)]">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--clinical-light)] text-[var(--gold-dark)]">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
                   <h3 className="font-serif text-2xl">Agende antes de ir</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-white/68">
-                    Fale com a equipe para confirmar disponibilidade e receber orientação rápida
-                    antes do atendimento.
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    Fale com a equipe para confirmar disponibilidade, receber orientação rápida e
+                    chegar com tudo organizado para o atendimento.
                   </p>
                 </div>
               </div>
@@ -132,7 +132,7 @@ function LocalizacaoPage() {
                   href={mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn-luxe !bg-white !text-[var(--petrol)]"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--petrol)]/15 bg-[var(--petrol)] px-7 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgb(15_42_58_/_0.16)] transition-all hover:-translate-y-0.5 hover:bg-[var(--petrol-soft)]"
                 >
                   <Navigation className="h-4 w-4" />
                   Como chegar
