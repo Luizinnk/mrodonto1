@@ -13,14 +13,17 @@ Deno.serve(async (req) => {
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("admin_access_requests")
-      .upsert({
-        user_id: userId,
-        email,
-        full_name: name ?? null,
-        status: "pending",
-        reviewed_at: null,
-        reviewer_note: null,
-      }, { onConflict: "user_id" })
+      .upsert(
+        {
+          user_id: userId,
+          email,
+          full_name: name ?? null,
+          status: "pending",
+          reviewed_at: null,
+          reviewer_note: null,
+        },
+        { onConflict: "user_id" },
+      )
       .select("id, decision_token")
       .single();
 
@@ -52,6 +55,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: true });
   } catch (error) {
     console.error(error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Unexpected error" }, 500);
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Unexpected error" },
+      500,
+    );
   }
 });

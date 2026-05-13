@@ -41,10 +41,14 @@ Deno.serve(async (req) => {
 
     await sendEmail({
       to: request.email,
-      subject: decision === "approved" ? "Acesso administrativo aprovado" : "Acesso administrativo recusado",
-      html: decision === "approved"
-        ? "<p>Seu acesso ao painel administrativo da MR Odontologia foi aprovado. Você já pode entrar com seu email e senha.</p>"
-        : "<p>Sua solicitação de acesso ao painel administrativo da MR Odontologia foi recusada.</p>",
+      subject:
+        decision === "approved"
+          ? "Acesso administrativo aprovado"
+          : "Acesso administrativo recusado",
+      html:
+        decision === "approved"
+          ? "<p>Seu acesso ao painel administrativo da MR Odontologia foi aprovado. Você já pode entrar com seu email e senha.</p>"
+          : "<p>Sua solicitação de acesso ao painel administrativo da MR Odontologia foi recusada.</p>",
     });
 
     return htmlResponse(`
@@ -58,6 +62,9 @@ Deno.serve(async (req) => {
     `);
   } catch (error) {
     console.error(error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Unexpected error" }, 500);
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Unexpected error" },
+      500,
+    );
   }
 });

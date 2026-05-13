@@ -31,7 +31,9 @@ Deno.serve(async (req) => {
 
     const { data: appointments, error } = await supabase
       .from("appointments")
-      .select("id, scheduled_at, customer_name, customer_email, customer_confirmation_token, service:services(name)")
+      .select(
+        "id, scheduled_at, customer_name, customer_email, customer_confirmation_token, service:services(name)",
+      )
       .gte("scheduled_at", start)
       .lt("scheduled_at", end)
       .in("status", ["pending", "confirmed"])
@@ -76,6 +78,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: true, date: today, sent });
   } catch (error) {
     console.error(error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Unexpected error" }, 500);
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Unexpected error" },
+      500,
+    );
   }
 });

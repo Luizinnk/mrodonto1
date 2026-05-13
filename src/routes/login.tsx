@@ -24,7 +24,10 @@ function LoginPage() {
     if (mode === "signin") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (error) return toast.error("Email ou senha inválidos. Use recuperar senha ou crie a conta novamente.");
+      if (error)
+        return toast.error(
+          "Email ou senha inválidos. Use recuperar senha ou crie a conta novamente.",
+        );
       toast.success("Bem-vinda(o)!");
       navigate({ to: "/admin" });
     } else if (mode === "reset") {
@@ -36,7 +39,8 @@ function LoginPage() {
       toast.success("Enviamos o link de recuperação para seu email.");
     } else {
       const { data, error } = await supabase.auth.signUp({
-        email, password,
+        email,
+        password,
         options: {
           emailRedirectTo: `${window.location.origin}/admin`,
           data: { full_name: name },
@@ -56,7 +60,9 @@ function LoginPage() {
           },
         });
         if (requestError) {
-          toast.warning("Conta criada, mas o email de aprovação ainda precisa ser configurado no Supabase.");
+          toast.warning(
+            "Conta criada, mas o email de aprovação ainda precisa ser configurado no Supabase.",
+          );
         } else {
           toast.success("Solicitação enviada para aprovação.");
         }
@@ -85,20 +91,46 @@ function LoginPage() {
               <MailCheck className="h-4 w-4" />
               Solicitação enviada
             </div>
-            O acesso ao painel só será liberado depois da aprovação enviada para luiznovakiresner228@gmail.com.
+            O acesso ao painel só será liberado depois da aprovação enviada para
+            luiznovakiresner228@gmail.com.
           </div>
         )}
 
         <form onSubmit={submit} className="flex flex-col gap-4">
           {mode === "signup" && (
-            <input className="input" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required />
+            <input
+              className="input"
+              placeholder="Nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           )}
-          <input className="input" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input
+            className="input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
           {mode !== "reset" && (
-            <input className="input" type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            <input
+              className="input"
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
           )}
           <button disabled={loading} className="btn-luxe justify-center disabled:opacity-50">
-            {mode === "signin" ? <LockKeyhole className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+            {mode === "signin" ? (
+              <LockKeyhole className="h-4 w-4" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             {loading && "Aguarde…"}
             {!loading && mode === "signin" && "Entrar"}
             {!loading && mode === "signup" && "Criar conta e solicitar aprovação"}
@@ -106,24 +138,38 @@ function LoginPage() {
           </button>
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             {mode !== "signup" && (
-              <button type="button" onClick={() => setMode("signup")} className="hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className="hover:text-foreground"
+              >
                 Criar conta
               </button>
             )}
             {mode !== "reset" && (
-              <button type="button" onClick={() => setMode("reset")} className="hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => setMode("reset")}
+                className="hover:text-foreground"
+              >
                 Esqueci a senha
               </button>
             )}
             {mode !== "signin" && (
-              <button type="button" onClick={() => setMode("signin")} className="hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => setMode("signin")}
+                className="hover:text-foreground"
+              >
                 Entrar
               </button>
             )}
           </div>
         </form>
         <div className="mt-6 text-center">
-          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">← Voltar ao site</Link>
+          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
+            ← Voltar ao site
+          </Link>
         </div>
       </div>
       <style>{`.input{ width:100%; border:1.5px solid var(--color-border); background: var(--cream); padding:12px 16px; border-radius: 12px; font-size:14px; outline:none; transition: border-color .2s; }

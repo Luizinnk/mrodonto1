@@ -8,7 +8,11 @@ export const Route = createFileRoute("/servicos")({
   head: () => ({
     meta: [
       { title: "Serviços | MR Odontologia Estética" },
-      { name: "description", content: "Conheça nossos tratamentos: clareamento dental, harmonização facial, lentes de contato dental, botox e mais." },
+      {
+        name: "description",
+        content:
+          "Conheça nossos tratamentos: clareamento dental, harmonização facial, lentes de contato dental, botox e mais.",
+      },
     ],
   }),
   component: ServicosPage,

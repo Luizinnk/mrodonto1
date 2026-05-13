@@ -76,7 +76,10 @@ function downloadWorkbook({
   rows: Array<{ cells: Array<string | number>; status?: AppointmentStatus | "other" }>;
 }) {
   const summaryHtml = summary
-    .map((item) => `<span class="summary"><strong>${escapeHtml(item.value)}</strong>${escapeHtml(item.label)}</span>`)
+    .map(
+      (item) =>
+        `<span class="summary"><strong>${escapeHtml(item.value)}</strong>${escapeHtml(item.label)}</span>`,
+    )
     .join("");
   const headerHtml = headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("");
   const rowHtml = rows
@@ -159,7 +162,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appointments")
-        .select("id, scheduled_at, customer_name, customer_email, customer_phone, notes, status, created_at, reminder_sent_at, customer_confirmed_at, service:services(name, icon)")
+        .select(
+          "id, scheduled_at, customer_name, customer_email, customer_phone, notes, status, created_at, reminder_sent_at, customer_confirmed_at, service:services(name, icon)",
+        )
         .order("scheduled_at", { ascending: false });
       if (error) throw error;
       return data as unknown as Row[];
@@ -172,7 +177,9 @@ function AdminPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clients")
-        .select("id, full_name, email, phone, desired_procedure, important_notes, next_appointment_at, last_appointment_at, total_appointments, created_at")
+        .select(
+          "id, full_name, email, phone, desired_procedure, important_notes, next_appointment_at, last_appointment_at, total_appointments, created_at",
+        )
         .order("updated_at", { ascending: false });
       if (error) {
         console.warn("Clients table unavailable:", error.message);
@@ -198,14 +205,19 @@ function AdminPage() {
 
   const metrics = useMemo(() => {
     const list = appointments ?? [];
-    const today = new Date(); today.setHours(0,0,0,0);
-    const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
     return {
       total: list.length,
-      clients: clients?.length || new Set(list.map(a => a.customer_email.toLowerCase())).size,
-      today: list.filter(a => { const d = new Date(a.scheduled_at); return d >= today && d < tomorrow; }).length,
-      pending: list.filter(a => a.status === "pending").length,
-      confirmed: list.filter(a => a.status === "confirmed").length,
+      clients: clients?.length || new Set(list.map((a) => a.customer_email.toLowerCase())).size,
+      today: list.filter((a) => {
+        const d = new Date(a.scheduled_at);
+        return d >= today && d < tomorrow;
+      }).length,
+      pending: list.filter((a) => a.status === "pending").length,
+      confirmed: list.filter((a) => a.status === "confirmed").length,
     };
   }, [appointments, clients]);
 
@@ -218,7 +230,9 @@ function AdminPage() {
   }
 
   async function removeAppointment(appointment: Row) {
-    const confirmed = window.confirm(`Remover o agendamento de ${appointment.customer_name} do painel?`);
+    const confirmed = window.confirm(
+      `Remover o agendamento de ${appointment.customer_name} do painel?`,
+    );
     if (!confirmed) return;
 
     const { error } = await supabase.from("appointments").delete().eq("id", appointment.id);
@@ -295,7 +309,9 @@ function AdminPage() {
   function exportClientsCsv() {
     const list = clients ?? [];
     if (!list.length) {
-      toast.info("Nenhum cliente consolidado para exportar. Rode a migration da tabela clients no Supabase.");
+      toast.info(
+        "Nenhum cliente consolidado para exportar. Rode a migration da tabela clients no Supabase.",
+      );
       return;
     }
 
@@ -330,11 +346,15 @@ function AdminPage() {
     downloadWorkbook({
       filename: "clientes-mr-odontologia",
       title: "Controle de clientes",
-      subtitle: "Dados consolidados dos pacientes, procedimento desejado e observacoes importantes.",
+      subtitle:
+        "Dados consolidados dos pacientes, procedimento desejado e observacoes importantes.",
       summary: [
         { label: "Clientes", value: list.length },
         { label: "Com proximo horario", value: list.filter((c) => c.next_appointment_at).length },
-        { label: "Agendamentos totais", value: list.reduce((sum, c) => sum + c.total_appointments, 0) },
+        {
+          label: "Agendamentos totais",
+          value: list.reduce((sum, c) => sum + c.total_appointments, 0),
+        },
         { label: "Com observacoes", value: list.filter((c) => c.important_notes).length },
       ],
       headers,
@@ -350,18 +370,30 @@ function AdminPage() {
     return (
       <section className="py-32 px-6 max-w-2xl mx-auto text-center">
         <h1 className="font-serif text-4xl mb-3">Acesso restrito</h1>
-        <p className="text-muted-foreground mb-6">Sua conta ({user.email}) ainda não tem permissão de administrador.</p>
+        <p className="text-muted-foreground mb-6">
+          Sua conta ({user.email}) ainda não tem permissão de administrador.
+        </p>
         <div className="bg-card border border-border/60 rounded-2xl p-6 mb-6 text-left">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Status da solicitação</div>
-          <div className="font-serif text-2xl capitalize">{accessRequest?.status ?? "sem solicitação"}</div>
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">
+            Status da solicitação
+          </div>
+          <div className="font-serif text-2xl capitalize">
+            {accessRequest?.status ?? "sem solicitação"}
+          </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {accessRequest?.status === "pending" && "Aguardando aprovação por email em luiznovakiresner228@gmail.com."}
-            {accessRequest?.status === "rejected" && "A solicitação foi recusada. Esta conta continuará sem acesso ao painel."}
-            {accessRequest?.status === "approved" && "A solicitação foi aprovada. Entre novamente para atualizar a sessão."}
-            {!accessRequest && "Crie a conta pela tela de login para disparar o email de aprovação."}
+            {accessRequest?.status === "pending" &&
+              "Aguardando aprovação por email em luiznovakiresner228@gmail.com."}
+            {accessRequest?.status === "rejected" &&
+              "A solicitação foi recusada. Esta conta continuará sem acesso ao painel."}
+            {accessRequest?.status === "approved" &&
+              "A solicitação foi aprovada. Entre novamente para atualizar a sessão."}
+            {!accessRequest &&
+              "Crie a conta pela tela de login para disparar o email de aprovação."}
           </p>
         </div>
-        <button onClick={handleLogout} className="btn-outline-luxe">Sair</button>
+        <button onClick={handleLogout} className="btn-outline-luxe">
+          Sair
+        </button>
       </section>
     );
   }
@@ -394,8 +426,16 @@ function AdminPage() {
               <Download className="h-3.5 w-3.5" />
               Baixar Excel agenda
             </button>
-            <Link to="/" className="inline-flex items-center text-[12px] text-white/70 hover:text-white px-4 py-2">Site →</Link>
-            <button onClick={handleLogout} className="inline-flex items-center gap-2 text-[12px] border border-white/20 px-4 py-2 rounded-full hover:bg-white/10">
+            <Link
+              to="/"
+              className="inline-flex items-center text-[12px] text-white/70 hover:text-white px-4 py-2"
+            >
+              Site →
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 text-[12px] border border-white/20 px-4 py-2 rounded-full hover:bg-white/10"
+            >
               <LogOut className="h-3.5 w-3.5" />
               Sair
             </button>
@@ -421,8 +461,11 @@ function AdminPage() {
           </div>
 
           <div className="mb-6 rounded-2xl border border-[var(--clinical-light)] bg-[var(--clinical-light)]/45 p-5 text-sm text-[var(--clinical-strong)]">
-            A exportacao baixa uma planilha Excel com identidade MR, resumo, cliente, contato, procedimento desejado, status, observacoes e codigo do agendamento.
-            {SPREADSHEET_URL ? " O botão de planilha online abre a URL configurada no ambiente." : " Para apontar para uma planilha online fixa, configure VITE_CLIENTS_SPREADSHEET_URL no .env."}
+            A exportacao baixa uma planilha Excel com identidade MR, resumo, cliente, contato,
+            procedimento desejado, status, observacoes e codigo do agendamento.
+            {SPREADSHEET_URL
+              ? " O botão de planilha online abre a URL configurada no ambiente."
+              : " Para apontar para uma planilha online fixa, configure VITE_CLIENTS_SPREADSHEET_URL no .env."}
           </div>
 
           <div className="overflow-x-auto">
@@ -442,45 +485,60 @@ function AdminPage() {
                 {(appointments ?? []).map((a) => (
                   <tr key={a.id} className="border-b border-border/40 hover:bg-[var(--cream)]/50">
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="font-medium">{new Date(a.scheduled_at).toLocaleDateString("pt-BR")}</div>
-                      <div className="text-xs text-muted-foreground">{new Date(a.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+                      <div className="font-medium">
+                        {new Date(a.scheduled_at).toLocaleDateString("pt-BR")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(a.scheduled_at).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
                     </td>
-                    <td className="py-3 px-3">
-                      {a.service?.name}
-                    </td>
+                    <td className="py-3 px-3">{a.service?.name}</td>
                     <td className="py-3 px-3">{a.customer_name}</td>
                     <td className="py-3 px-3">
                       <div className="text-xs">{a.customer_email}</div>
                       <div className="text-xs text-muted-foreground">{a.customer_phone}</div>
                     </td>
                     <td className="py-3 px-3 max-w-[220px]">
-                      <div className="text-xs text-muted-foreground line-clamp-2">{a.notes || "Sem observações"}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-2">
+                        {a.notes || "Sem observações"}
+                      </div>
                     </td>
-                    <td className="py-3 px-3"><StatusBadge s={a.status} /></td>
+                    <td className="py-3 px-3">
+                      <StatusBadge s={a.status} />
+                    </td>
                     <td className="py-3 px-3">
                       <div className="flex flex-wrap gap-2">
-                      <select
-                        value={a.status}
-                        onChange={(e) => setStatus(a.id, e.target.value as AppointmentStatus)}
-                        className="text-xs border border-border rounded-full px-3 py-1 bg-card"
-                      >
-                        {(Object.keys(STATUS_LABEL) as AppointmentStatus[]).map(s => (
-                          <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={() => removeAppointment(a)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Remover
-                      </button>
+                        <select
+                          value={a.status}
+                          onChange={(e) => setStatus(a.id, e.target.value as AppointmentStatus)}
+                          className="text-xs border border-border rounded-full px-3 py-1 bg-card"
+                        >
+                          {(Object.keys(STATUS_LABEL) as AppointmentStatus[]).map((s) => (
+                            <option key={s} value={s}>
+                              {STATUS_LABEL[s]}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => removeAppointment(a)}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Remover
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
                 {appointments?.length === 0 && (
-                  <tr><td colSpan={7} className="py-12 text-center text-muted-foreground">Nenhum agendamento ainda.</td></tr>
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-muted-foreground">
+                      Nenhum agendamento ainda.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -498,5 +556,9 @@ function StatusBadge({ s }: { s: AppointmentStatus }) {
     done: "bg-[var(--clinical-light)] text-[var(--clinical)]",
     cancelled: "bg-red-100 text-red-800",
   };
-  return <span className={`text-[11px] font-medium px-3 py-1 rounded-full ${styles[s]}`}>{STATUS_LABEL[s]}</span>;
+  return (
+    <span className={`text-[11px] font-medium px-3 py-1 rounded-full ${styles[s]}`}>
+      {STATUS_LABEL[s]}
+    </span>
+  );
 }

@@ -14,7 +14,10 @@ export const Route = createFileRoute("/localizacao")({
   head: () => ({
     meta: [
       { title: "Localização | MR Odontologia Estética" },
-      { name: "description", content: "Onde estamos: endereço, horário de funcionamento e contato direto pelo WhatsApp." },
+      {
+        name: "description",
+        content: "Onde estamos: endereço, horário de funcionamento e contato direto pelo WhatsApp.",
+      },
     ],
   }),
   component: LocalizacaoPage,
@@ -22,7 +25,8 @@ export const Route = createFileRoute("/localizacao")({
 
 const phone = "41988551599";
 const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent("Olá! Gostaria de agendar uma consulta na MR Odonto.")}`;
-const address = "Av. Miguel Komarchewski, Galeria Momm, sala 12 - Centro, Campo do Tenente - PR, 83870-000";
+const address =
+  "Av. Miguel Komarchewski, Galeria Momm, sala 12 - Centro, Campo do Tenente - PR, 83870-000";
 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 const embedUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 
@@ -30,7 +34,8 @@ const infoCards = [
   {
     icon: MapPin,
     title: "Endereço",
-    value: "Av. Miguel Komarchewski\nGaleria Momm, sala 12 - Centro\nCampo do Tenente - PR, 83870-000",
+    value:
+      "Av. Miguel Komarchewski\nGaleria Momm, sala 12 - Centro\nCampo do Tenente - PR, 83870-000",
   },
   {
     icon: Clock,
@@ -66,8 +71,8 @@ function LocalizacaoPage() {
             Visite a MR Odonto com tranquilidade.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Atendimento em sala privativa na Galeria Momm, no Centro de Campo do Tenente,
-            com acesso simples pelo mapa e contato direto pelo WhatsApp.
+            Atendimento em sala privativa na Galeria Momm, no Centro de Campo do Tenente, com acesso
+            simples pelo mapa e contato direto pelo WhatsApp.
           </p>
         </div>
 
@@ -76,8 +81,12 @@ function LocalizacaoPage() {
             <div className="glass-panel rounded-[1.75rem] p-5 md:p-7">
               <div className="mb-5 flex items-start justify-between gap-5 border-b border-border/70 pb-5">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--gold-dark)]">Contato e endereço</p>
-                  <h2 className="mt-2 font-serif text-3xl text-[var(--petrol)]">Tudo para chegar sem dúvida</h2>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--gold-dark)]">
+                    Contato e endereço
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl text-[var(--petrol)]">
+                    Tudo para chegar sem dúvida
+                  </h2>
                 </div>
                 <span className="hidden rounded-full border border-[var(--clinical)] bg-[var(--clinical-light)] px-3 py-1.5 text-xs font-semibold text-[var(--petrol)] sm:inline-flex">
                   CRO-PR 33538
@@ -95,7 +104,9 @@ function LocalizacaoPage() {
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-[var(--petrol)]">{item.title}</div>
-                      <div className="mt-1 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{item.value}</div>
+                      <div className="mt-1 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {item.value}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -110,13 +121,19 @@ function LocalizacaoPage() {
                 <div>
                   <h3 className="font-serif text-2xl">Agende antes de ir</h3>
                   <p className="mt-1 text-sm leading-relaxed text-white/68">
-                    Fale com a equipe para confirmar disponibilidade e receber orientação rápida antes do atendimento.
+                    Fale com a equipe para confirmar disponibilidade e receber orientação rápida
+                    antes do atendimento.
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <a href={mapsUrl} target="_blank" rel="noreferrer" className="btn-luxe !bg-white !text-[var(--petrol)]">
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-luxe !bg-white !text-[var(--petrol)]"
+                >
                   <Navigation className="h-4 w-4" />
                   Como chegar
                 </a>
@@ -135,8 +152,12 @@ function LocalizacaoPage() {
 
           <div className="relative min-h-[520px] overflow-hidden rounded-[2rem] border border-white bg-white shadow-[var(--shadow-luxe)]">
             <div className="absolute left-5 top-5 z-10 rounded-2xl border border-white/75 bg-white/90 px-4 py-3 shadow-[var(--shadow-soft)] backdrop-blur">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--gold-dark)]">MR Odonto</p>
-              <p className="mt-1 text-sm font-semibold text-[var(--petrol)]">Galeria Momm, sala 12</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--gold-dark)]">
+                MR Odonto
+              </p>
+              <p className="mt-1 text-sm font-semibold text-[var(--petrol)]">
+                Galeria Momm, sala 12
+              </p>
             </div>
             <a
               href={mapsUrl}

@@ -5,7 +5,11 @@ export const Route = createFileRoute("/sobre")({
   head: () => ({
     meta: [
       { title: "Sobre | MR Odontologia Estética" },
-      { name: "description", content: "Conheça a MR Odontologia Estética: equipe especializada, atendimento humanizado e tecnologia de ponta." },
+      {
+        name: "description",
+        content:
+          "Conheça a MR Odontologia Estética: equipe especializada, atendimento humanizado e tecnologia de ponta.",
+      },
     ],
   }),
   component: SobrePage,
@@ -18,10 +22,22 @@ function SobrePage() {
         <div className="relative">
           <div className="rounded-3xl h-[520px] relative overflow-hidden bg-[var(--ivory)] clinical-grid shadow-[var(--shadow-luxe)]">
             <div className="absolute inset-0 grid grid-cols-2 gap-3 p-5">
-              <img src="/mr-clinic/caso-01-rosto-depois.jpg" alt="Paciente com resultado de reabilitação estética" className="h-full w-full rounded-2xl object-cover" />
+              <img
+                src="/mr-clinic/caso-01-rosto-depois.jpg"
+                alt="Paciente com resultado de reabilitação estética"
+                className="h-full w-full rounded-2xl object-cover"
+              />
               <div className="grid gap-3">
-                <img src="/mr-clinic/caso-02-comparativo.jpg" alt="Comparativo real de estética dental" className="h-full w-full rounded-2xl object-cover" />
-                <img src="/mr-clinic/caso-02-depois-lateral.jpg" alt="Detalhe lateral de resultado dental" className="h-full w-full rounded-2xl object-cover" />
+                <img
+                  src="/mr-clinic/caso-02-comparativo.jpg"
+                  alt="Comparativo real de estética dental"
+                  className="h-full w-full rounded-2xl object-cover"
+                />
+                <img
+                  src="/mr-clinic/caso-02-depois-lateral.jpg"
+                  alt="Detalhe lateral de resultado dental"
+                  className="h-full w-full rounded-2xl object-cover"
+                />
               </div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
@@ -41,7 +57,8 @@ function SobrePage() {
           </p>
           <p className="text-foreground/80 font-light leading-relaxed">
             Trabalhamos com tecnologia de última geração, materiais premium e protocolos rigorosos
-            de biossegurança. Tudo para que sua experiência seja confortável, segura e transformadora.
+            de biossegurança. Tudo para que sua experiência seja confortável, segura e
+            transformadora.
           </p>
           <ul className="mt-8 flex flex-col gap-3">
             {[

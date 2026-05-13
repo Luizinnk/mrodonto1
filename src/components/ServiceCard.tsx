@@ -29,7 +29,9 @@ export function ServiceCard({ service: s }: { service: Service }) {
         </span>
       </div>
       <h3 className="relative mb-2 font-serif text-2xl text-[var(--petrol)]">{s.name}</h3>
-      <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4">{s.description}</p>
+      <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4">
+        {s.description}
+      </p>
       <div className="flex items-center justify-between py-3 border-y border-border/60 mb-4">
         <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <Clock3 className="h-3.5 w-3.5" />

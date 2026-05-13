@@ -28,7 +28,15 @@ export function serviceIconName(slug: string) {
   return iconBySlug[slug] ?? "clareamento";
 }
 
-export function PremiumServiceIcon({ slug, active = false, className = "" }: { slug: string; active?: boolean; className?: string }) {
+export function PremiumServiceIcon({
+  slug,
+  active = false,
+  className = "",
+}: {
+  slug: string;
+  active?: boolean;
+  className?: string;
+}) {
   const icon = serviceIconName(slug);
   return (
     <span

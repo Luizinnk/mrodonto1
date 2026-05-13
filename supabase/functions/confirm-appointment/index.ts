@@ -37,6 +37,9 @@ Deno.serve(async (req) => {
     `);
   } catch (error) {
     console.error(error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "Unexpected error" }, 500);
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Unexpected error" },
+      500,
+    );
   }
 });

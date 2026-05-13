@@ -19,17 +19,37 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "MR Odontologia Estética | Agende seu horário" },
-      { name: "description", content: "Odontologia estética, clareamento, harmonização, lentes e facetas com agendamento online simples." },
+      {
+        name: "description",
+        content:
+          "Odontologia estética, clareamento, harmonização, lentes e facetas com agendamento online simples.",
+      },
     ],
   }),
   component: HomePage,
 });
 
 const trustItems = [
-  { icon: Gem, title: "Excelência", text: "Cuidado técnico, acabamento natural e atenção ao detalhe." },
-  { icon: ShieldCheck, title: "Tecnologia", text: "Planejamento moderno para tratamentos mais previsíveis." },
-  { icon: UserRoundCheck, title: "Atendimento", text: "Conversa clara, acolhimento e orientação em cada etapa." },
-  { icon: HeartHandshake, title: "Bem-estar", text: "Ambiente pensado para uma experiência tranquila." },
+  {
+    icon: Gem,
+    title: "Excelência",
+    text: "Cuidado técnico, acabamento natural e atenção ao detalhe.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Tecnologia",
+    text: "Planejamento moderno para tratamentos mais previsíveis.",
+  },
+  {
+    icon: UserRoundCheck,
+    title: "Atendimento",
+    text: "Conversa clara, acolhimento e orientação em cada etapa.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Bem-estar",
+    text: "Ambiente pensado para uma experiência tranquila.",
+  },
 ];
 
 const clinicalCases = [
@@ -84,10 +104,12 @@ function HomePage() {
               Clínica odontológica premium · CRO-PR 33538
             </span>
             <h1 className="mt-7 text-balance text-5xl text-[var(--petrol)] md:text-7xl">
-              Sorrisos que transformam <span className="italic text-[var(--gold-dark)]">vidas e histórias.</span>
+              Sorrisos que transformam{" "}
+              <span className="italic text-[var(--gold-dark)]">vidas e histórias.</span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Odontologia e estética com excelência para cuidar do que mais importa: você, sua autoestima e sua família.
+              Odontologia e estética com excelência para cuidar do que mais importa: você, sua
+              autoestima e sua família.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/agenda" className="btn-luxe !px-8 !py-4">
@@ -105,32 +127,50 @@ function HomePage() {
                 ["8+", "procedimentos"],
                 ["5.0", "experiência média"],
               ].map(([value, label], index) => (
-                <div key={label} className="hero-stat-item" style={{ animationDelay: `${index * 90}ms` }}>
+                <div
+                  key={label}
+                  className="hero-stat-item"
+                  style={{ animationDelay: `${index * 90}ms` }}
+                >
                   <div className="font-serif text-3xl text-[var(--gold-dark)]">{value}</div>
-                  <div className="mt-1 text-[11px] uppercase tracking-[0.1em] text-muted-foreground">{label}</div>
+                  <div className="mt-1 text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+                    {label}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative z-10 min-h-[520px]">
+          <div className="relative z-10 min-h-[420px] sm:min-h-[520px]">
             <div className="hero-identity-card">
-              <img src="/mr-brand/family.png" alt="Familia sorrindo MR Odonto" className="hero-family-image h-full w-full object-cover object-center" />
+              <img
+                src="/mr-brand/family.png"
+                alt="Família sorrindo MR Odonto"
+                className="hero-family-image h-full w-full object-cover object-center"
+              />
             </div>
             <div className="hero-floating-card">
               <HeartHandshake className="mb-4 h-7 w-7 text-[var(--gold-dark)]" />
-              <h3 className="font-serif text-2xl text-[var(--petrol)]">Cuidar do seu sorriso<br />e cuidar do seu bem-estar.</h3>
+              <h3 className="font-serif text-2xl text-[var(--petrol)]">
+                Cuidar do seu sorriso
+                <br />é cuidar do seu bem-estar.
+              </h3>
             </div>
           </div>
 
           <div className="z-10 rounded-[1.5rem] border border-white bg-white/90 p-3 shadow-[var(--shadow-elegant)] lg:col-span-2">
             <div className="grid gap-2 md:grid-cols-4">
               {trustItems.map((item) => (
-                <div key={item.title} className="flex gap-4 rounded-[1.1rem] p-4 transition-colors hover:bg-[var(--clinical-light)]">
+                <div
+                  key={item.title}
+                  className="flex gap-4 rounded-[1.1rem] p-4 transition-colors hover:bg-[var(--clinical-light)]"
+                >
                   <item.icon className="mt-1 h-7 w-7 shrink-0 text-[var(--gold-dark)]" />
                   <div>
                     <div className="text-sm font-semibold text-[var(--petrol)]">{item.title}</div>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {item.text}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -147,11 +187,14 @@ function HomePage() {
               Soluções para transformar e valorizar o seu sorriso
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Serviços organizados para o paciente entender rápido, escolher com segurança e agendar sem dificuldade.
+              Serviços organizados para o paciente entender rápido, escolher com segurança e agendar
+              sem dificuldade.
             </p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services?.map((s) => <ServiceCard key={s.id} service={s} />)}
+            {services?.map((s) => (
+              <ServiceCard key={s.id} service={s} />
+            ))}
           </div>
           <div className="mt-10 text-center">
             <Link to="/servicos" className="btn-outline-luxe">
@@ -166,9 +209,12 @@ function HomePage() {
         <div className="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
             <span className="section-kicker !text-[var(--gold-light)]">Tecnologia e conforto</span>
-            <h2 className="mt-3 text-4xl md:text-5xl">Estrutura pensada para uma experiência mais tranquila.</h2>
+            <h2 className="mt-3 text-4xl md:text-5xl">
+              Estrutura pensada para uma experiência mais tranquila.
+            </h2>
             <p className="mt-5 max-w-xl text-white/70">
-              Do primeiro contato ao retorno, a MR organiza o atendimento para que você saiba o que será feito, quando será atendido e como cuidar do resultado.
+              Do primeiro contato ao retorno, a MR organiza o atendimento para que você saiba o que
+              será feito, quando será atendido e como cuidar do resultado.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {[
@@ -177,7 +223,10 @@ function HomePage() {
                 { icon: Stethoscope, text: "Planejamento clínico" },
                 { icon: ShieldCheck, text: "Biossegurança" },
               ].map((item) => (
-                <div key={item.text} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/6 p-4">
+                <div
+                  key={item.text}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/6 p-4"
+                >
                   <item.icon className="h-5 w-5 text-[var(--gold-light)]" />
                   <span className="text-sm">{item.text}</span>
                 </div>
@@ -185,7 +234,11 @@ function HomePage() {
             </div>
           </div>
           <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/8 p-3 shadow-[0_24px_70px_rgb(0_0_0_/_0.24)]">
-            <img src="/mr-brand/banner1.png" alt="Identidade MR Odontologia" className="aspect-[16/9] w-full rounded-[1.1rem] object-cover object-center" />
+            <img
+              src="/mr-brand/banner1.png"
+              alt="Identidade MR Odontologia"
+              className="aspect-[16/9] w-full rounded-[1.1rem] object-cover object-center"
+            />
           </div>
         </div>
       </section>
@@ -193,7 +246,9 @@ function HomePage() {
       <section id="resultados" className="overflow-hidden bg-[var(--ivory)] py-24">
         <div className="mx-auto max-w-[1280px] px-6 text-center">
           <span className="section-kicker">Resultados reais</span>
-          <h2 className="mx-auto mt-3 max-w-3xl text-4xl text-[var(--petrol)] md:text-5xl">Sorrisos reais que mostram a identidade da MR</h2>
+          <h2 className="mx-auto mt-3 max-w-3xl text-4xl text-[var(--petrol)] md:text-5xl">
+            Sorrisos reais que mostram a identidade da MR
+          </h2>
         </div>
         <div className="results-viewport mt-12" aria-label="Carrossel automático de sorrisos reais">
           <div className="results-carousel">
@@ -201,7 +256,12 @@ function HomePage() {
               <div className="results-carousel-group" aria-hidden={group === 1} key={group}>
                 {resultPortraits.map((src, index) => (
                   <article key={`${group}-${src}`} className="result-card">
-                    <img src={src} alt={`Resultado real MR Odontologia ${index + 1}`} />
+                    <img
+                      src={src}
+                      alt={`Resultado real MR Odontologia ${index + 1}`}
+                      loading="eager"
+                      decoding="async"
+                    />
                   </article>
                 ))}
               </div>
@@ -215,7 +275,9 @@ function HomePage() {
           <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="section-kicker">Antes e depois</span>
-              <h2 className="mt-3 max-w-2xl text-4xl text-[var(--petrol)] md:text-5xl">Transformações com naturalidade</h2>
+              <h2 className="mt-3 max-w-2xl text-4xl text-[var(--petrol)] md:text-5xl">
+                Transformações com naturalidade
+              </h2>
             </div>
             <Link to="/agenda" className="btn-luxe w-fit">
               <CalendarCheck className="h-4 w-4" />
@@ -225,7 +287,10 @@ function HomePage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {clinicalCases.map((item) => (
-              <article key={item.title} className="pro-card overflow-hidden rounded-[1.5rem] bg-white">
+              <article
+                key={item.title}
+                className="pro-card overflow-hidden rounded-[1.5rem] bg-white"
+              >
                 <div className="grid grid-cols-2">
                   <ImagePanel src={item.before} label="Antes" />
                   <ImagePanel src={item.after} label="Depois" highlight />
@@ -243,9 +308,12 @@ function HomePage() {
       <section className="bg-[linear-gradient(135deg,var(--clinical-light),var(--ivory))] px-6 py-24">
         <div className="mx-auto max-w-4xl text-center">
           <span className="section-kicker">Agendamento online</span>
-          <h2 className="mt-3 text-4xl text-[var(--petrol)] md:text-5xl">Seu horário em poucos passos.</h2>
+          <h2 className="mt-3 text-4xl text-[var(--petrol)] md:text-5xl">
+            Seu horário em poucos passos.
+          </h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Escolha o tratamento, veja os horários disponíveis e envie seus dados. A equipe recebe tudo organizado para confirmar seu atendimento.
+            Escolha o tratamento, veja os horários disponíveis e envie seus dados. A equipe recebe
+            tudo organizado para confirmar seu atendimento.
           </p>
           <Link to="/agenda" className="btn-luxe mt-8 !px-8 !py-4">
             <CalendarCheck className="h-4 w-4" />
@@ -257,11 +325,25 @@ function HomePage() {
   );
 }
 
-function ImagePanel({ src, label, highlight = false }: { src: string; label: string; highlight?: boolean }) {
+function ImagePanel({
+  src,
+  label,
+  highlight = false,
+}: {
+  src: string;
+  label: string;
+  highlight?: boolean;
+}) {
   return (
     <div className="relative aspect-square overflow-hidden bg-[var(--clinical-light)]">
-      <img src={src} alt={`${label} do tratamento`} className="h-full w-full object-cover object-center" />
-      <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${highlight ? "bg-[var(--petrol)] text-white" : "bg-white/86 text-[var(--petrol)]"}`}>
+      <img
+        src={src}
+        alt={`${label} do tratamento`}
+        className="h-full w-full object-cover object-center"
+      />
+      <span
+        className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${highlight ? "bg-[var(--petrol)] text-white" : "bg-white/86 text-[var(--petrol)]"}`}
+      >
         {label}
       </span>
     </div>

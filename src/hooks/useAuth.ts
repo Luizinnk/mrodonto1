@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-const OWNER_EMAIL = (import.meta.env.VITE_ADMIN_OWNER_EMAIL ?? "luiznovakiresner228@gmail.com").toLowerCase();
+const OWNER_EMAIL = (
+  import.meta.env.VITE_ADMIN_OWNER_EMAIL ?? "luiznovakiresner228@gmail.com"
+).toLowerCase();
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
@@ -11,7 +13,9 @@ export function useAuth() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       setUser(s?.user ?? null);
     });
@@ -24,7 +28,10 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
     if (user.email?.toLowerCase() === OWNER_EMAIL) {
       setIsAdmin(true);
       return;
