@@ -253,7 +253,7 @@ function AgendaPage() {
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" placeholder="Seu nome" maxLength={120} />
                   </Field>
                   <Field label="Telefone">
-                    <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input" placeholder="(41) 98855-1599" maxLength={20} />
+                    <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input" placeholder="41988551599" maxLength={20} />
                   </Field>
                   <Field label="Email" className="md:col-span-2">
                     <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input" placeholder="seu@email.com" maxLength={200} />

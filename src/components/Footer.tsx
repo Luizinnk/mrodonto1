@@ -26,7 +26,7 @@ export function Footer() {
           <div>
             <h4 className="text-[11px] tracking-[0.14em] uppercase text-[var(--gold)] mb-4 font-sans font-medium">Contato</h4>
             <p className="flex items-start gap-2 text-sm text-white/60 mb-2"><Mail className="h-4 w-4 mt-0.5 text-[var(--gold)]" /> contato@mrodonto.com</p>
-            <p className="flex items-start gap-2 text-sm text-white/60 mb-2"><Phone className="h-4 w-4 mt-0.5 text-[var(--gold)]" /> +55 41 98855-1599</p>
+            <p className="flex items-start gap-2 text-sm text-white/60 mb-2"><Phone className="h-4 w-4 mt-0.5 text-[var(--gold)]" /> 41988551599</p>
             <p className="flex items-start gap-2 text-sm text-white/60 mb-2"><Clock className="h-4 w-4 mt-0.5 text-[var(--gold)]" /> Seg-Sex 9h - 19h</p>
             <p className="flex items-start gap-2 text-sm text-white/60"><MapPin className="h-4 w-4 mt-0.5 text-[var(--gold)]" /> Galeria Momm, sala 12 - Centro</p>
           </div>

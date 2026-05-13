@@ -1,7 +1,10 @@
 export function WhatsAppButton() {
+  const phone = "41988551599";
+  const message = encodeURIComponent("Olá! Gostaria de agendar uma consulta.");
+
   return (
     <a
-      href="https://wa.me/5541988551599?text=Ol%C3%A1%21%20Gostaria%20de%20agendar%20uma%20consulta."
+      href={`https://wa.me/55${phone}?text=${message}`}
       target="_blank"
       rel="noreferrer"
       className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 bg-[#25D366] text-white py-3 pl-4 pr-5 rounded-full shadow-lg hover:-translate-y-0.5 transition-transform text-sm font-semibold"
