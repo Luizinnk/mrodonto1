@@ -11,6 +11,9 @@ import { nitro } from "nitro/vite";
 // @cloudflare/vite-plugin builds from this; wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   cloudflare: false,
+  vite: {
+    envPrefix: ["VITE_", "NEXT_PUBLIC_"],
+  },
   tanstackStart: {
     server: { entry: "server" },
   },

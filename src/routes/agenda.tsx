@@ -63,6 +63,15 @@ type BusySlotRow = {
   scheduled_at: string;
 };
 
+function withTimeout<T>(promise: Promise<T>, ms = 12000, label = "Supabase") {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} demorou para responder.`)), ms);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+}
+
 function AgendaPage() {
   const search = Route.useSearch();
   const [step, setStep] = useState(0);
@@ -78,6 +87,7 @@ function AgendaPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", notes: "" });
   const [confirmedId, setConfirmedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { data: services, isLoading: servicesLoading } = useQuery({
     queryKey: ["services"],
@@ -123,32 +133,46 @@ function AgendaPage() {
   async function submit() {
     if (!selectedService || !date || !time) return;
     setSubmitting(true);
-    const [h, m] = time.split(":").map(Number);
-    const dt = new Date(date);
-    dt.setHours(h, m, 0, 0);
-    const notes = [form.notes.trim(), `Profissional/triagem: ${selectedProfessional.name}`]
-      .filter(Boolean)
-      .join("\n");
-    const { data, error } = await supabase
-      .from("appointments")
-      .insert({
-        service_id: selectedService.id,
-        scheduled_at: dt.toISOString(),
-        customer_name: form.name.trim(),
-        customer_email: form.email.trim(),
-        customer_phone: form.phone.trim(),
-        notes: notes || null,
-      })
-      .select("id")
-      .single();
-    setSubmitting(false);
-    if (error) {
-      toast.error("Erro ao agendar. Tente novamente.");
-      return;
+    setSubmitError(null);
+    try {
+      const [h, m] = time.split(":").map(Number);
+      const dt = new Date(date);
+      dt.setHours(h, m, 0, 0);
+      const notes = [form.notes.trim(), `Profissional/triagem: ${selectedProfessional.name}`]
+        .filter(Boolean)
+        .join("\n");
+      const { data, error } = await withTimeout(
+        supabase
+          .from("appointments")
+          .insert({
+            service_id: selectedService.id,
+            scheduled_at: dt.toISOString(),
+            customer_name: form.name.trim(),
+            customer_email: form.email.trim(),
+            customer_phone: form.phone.trim(),
+            notes: notes || null,
+            status: "pending",
+          })
+          .select("id")
+          .single(),
+        12000,
+        "Agendamento",
+      );
+      if (error) throw error;
+      setConfirmedId(data.id);
+      setStep(5);
+      toast.success("Agendamento confirmado!");
+    } catch (error) {
+      console.error("[Agenda] Falha ao confirmar agendamento:", error);
+      const message =
+        error instanceof Error && /row-level security|policy|permission/i.test(error.message)
+          ? "O banco de dados bloqueou o agendamento. Aplique a SQL de liberacao no Supabase e tente novamente."
+          : "Nao consegui confirmar agora. Tente novamente ou chame a equipe no WhatsApp.";
+      setSubmitError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
     }
-    setConfirmedId(data.id);
-    setStep(5);
-    toast.success("Agendamento confirmado!");
   }
 
   return (
@@ -373,6 +397,11 @@ function AgendaPage() {
                     />
                   </Field>
                 </div>
+                {submitError && (
+                  <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                    {submitError}
+                  </div>
+                )}
               </Panel>
             )}
 
