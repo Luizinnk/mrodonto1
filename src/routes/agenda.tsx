@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { CalendarCheck, CheckCircle2, Clock3, Loader2, UserRoundCheck } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PremiumServiceIcon } from "@/components/PremiumServiceIcon";
+import { supabase } from "@/integrations/supabase/client";
 import { FALLBACK_SERVICES, loadServices } from "@/lib/services";
 
 const searchSchema = z.object({ service: z.string().optional() });
@@ -50,7 +50,7 @@ const PROFESSIONALS = [
   {
     id: "dr-derick",
     name: "Dr. Derick Meinelecki",
-    text: "Cirurgião-dentista CRO-PR 33538, responsável por clínica geral, facetas, botox e implantodontia.",
+    text: "Cirurgião-dentista CRO-PR 33538, clínico geral, facetas, botox e implantodontia.",
   },
   {
     id: "equipe",
@@ -59,21 +59,14 @@ const PROFESSIONALS = [
   },
 ];
 
-type BusySlotRow = {
-  scheduled_at: string;
-};
-
-type ServiceLookupRow = {
-  id: string;
-  name: string;
-};
+type BusySlotRow = { scheduled_at: string };
+type ServiceLookupRow = { id: string; name: string };
 
 function withTimeout<T>(promise: Promise<T>, ms = 12000, label = "Supabase") {
   let timeoutId: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error(`${label} demorou para responder.`)), ms);
   });
-
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
 }
 
@@ -121,14 +114,14 @@ function AgendaPage() {
             .gte("scheduled_at", start.toISOString())
             .lte("scheduled_at", end.toISOString()),
           7000,
-          "Horarios ocupados",
+          "Horários ocupados",
         );
         if (error) throw error;
         return ((data ?? []) as BusySlotRow[]).map((slot) =>
           new Date(slot.scheduled_at).toTimeString().slice(0, 5),
         );
       } catch (error) {
-        console.warn("[Agenda] Nao foi possivel carregar horarios ocupados:", error);
+        console.warn("[Agenda] Não foi possível carregar horários ocupados:", error);
         return [];
       }
     },
@@ -157,51 +150,49 @@ function AgendaPage() {
           .eq("active", true)
           .maybeSingle(),
         8000,
-        "Servicos",
+        "Serviços",
       );
       if (serviceError) throw serviceError;
       if (!serviceRow) {
-        throw new Error(
-          "SERVICES_NOT_CONFIGURED: os servicos ainda nao foram cadastrados no Supabase.",
-        );
+        throw new Error("SERVICES_NOT_CONFIGURED");
       }
 
       const [h, m] = time.split(":").map(Number);
-      const dt = new Date(date);
-      dt.setHours(h, m, 0, 0);
-      const resolvedService = serviceRow as ServiceLookupRow;
+      const scheduledAt = new Date(date);
+      scheduledAt.setHours(h, m, 0, 0);
+
+      const appointmentId = crypto.randomUUID();
       const notes = [form.notes.trim(), `Profissional/triagem: ${selectedProfessional.name}`]
         .filter(Boolean)
         .join("\n");
-      const { data, error } = await withTimeout(
-        supabase
-          .from("appointments")
-          .insert({
-            service_id: resolvedService.id,
-            scheduled_at: dt.toISOString(),
-            customer_name: form.name.trim(),
-            customer_email: form.email.trim(),
-            customer_phone: form.phone.trim(),
-            notes: notes || null,
-            status: "pending",
-          })
-          .select("id")
-          .single(),
+
+      const { error } = await withTimeout(
+        supabase.from("appointments").insert({
+          id: appointmentId,
+          service_id: (serviceRow as ServiceLookupRow).id,
+          scheduled_at: scheduledAt.toISOString(),
+          customer_name: form.name.trim(),
+          customer_email: form.email.trim(),
+          customer_phone: form.phone.trim(),
+          notes: notes || null,
+          status: "pending",
+        }),
         12000,
         "Agendamento",
       );
       if (error) throw error;
-      setConfirmedId(data.id);
+
+      setConfirmedId(appointmentId);
       setStep(5);
       toast.success("Agendamento confirmado!");
     } catch (error) {
       console.error("[Agenda] Falha ao confirmar agendamento:", error);
       const message =
         error instanceof Error && error.message.includes("SERVICES_NOT_CONFIGURED")
-          ? "O novo Supabase ainda nao tem os servicos cadastrados. Rode as migrations antes de testar o agendamento."
+          ? "Os serviços ainda não foram cadastrados no Supabase."
           : error instanceof Error && /row-level security|policy|permission/i.test(error.message)
-            ? "O banco de dados bloqueou o agendamento. Aplique a SQL de liberacao no Supabase e tente novamente."
-            : "Nao consegui confirmar agora. Tente novamente ou chame a equipe no WhatsApp.";
+            ? "O banco bloqueou o agendamento. Aplique a SQL de liberação no Supabase."
+            : "Não consegui confirmar agora. Tente novamente ou chame a equipe no WhatsApp.";
       setSubmitError(message);
       toast.error(message);
     } finally {
@@ -210,7 +201,7 @@ function AgendaPage() {
   }
 
   return (
-    <section className="min-h-screen bg-[linear-gradient(135deg,var(--ivory),var(--clinical-light))] px-6 py-16">
+    <section className="agenda-page min-h-screen bg-[linear-gradient(135deg,var(--ivory),var(--clinical-light))] px-6 py-16">
       <div className="mx-auto max-w-[1120px]">
         <div className="mb-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
           <div>
@@ -233,10 +224,7 @@ function AgendaPage() {
                 ["2", "Horário"],
                 ["3", "Confirmação"],
               ].map(([number, label]) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 rounded-2xl bg-[var(--ivory)] p-3"
-                >
+                <div key={label} className="flex items-center gap-3 rounded-2xl bg-[var(--ivory)] p-3">
                   <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--petrol)] text-sm font-semibold text-white">
                     {number}
                   </span>
@@ -247,21 +235,17 @@ function AgendaPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[var(--shadow-luxe)]">
-          <div className="grid border-b border-border bg-[var(--ivory)] sm:grid-cols-3 lg:grid-cols-6">
+        <div className="agenda-shell overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[var(--shadow-luxe)]">
+          <div className="agenda-steps grid border-b border-border bg-[var(--ivory)] sm:grid-cols-3 lg:grid-cols-6">
             {STEPS.map((label, i) => (
               <div
                 key={label}
                 className={`flex items-center gap-3 border-b-2 px-4 py-4 transition-colors ${i === step ? "border-[var(--gold)] bg-white" : "border-transparent"}`}
               >
-                <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${i <= step ? "bg-[var(--petrol)] text-white" : "bg-white text-muted-foreground"}`}
-                >
+                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${i <= step ? "bg-[var(--petrol)] text-white" : "bg-white text-muted-foreground"}`}>
                   {i + 1}
                 </span>
-                <span
-                  className={`text-xs font-semibold uppercase tracking-[0.08em] ${i === step ? "text-[var(--petrol)]" : "text-muted-foreground"}`}
-                >
+                <span className={`text-xs font-semibold uppercase tracking-[0.08em] ${i === step ? "text-[var(--petrol)]" : "text-muted-foreground"}`}>
                   {label}
                 </span>
               </div>
@@ -270,10 +254,7 @@ function AgendaPage() {
 
           <div className="p-6 md:p-10">
             {step === 0 && (
-              <Panel
-                title="Escolha o tratamento"
-                text="Comece selecionando o serviço desejado. Você pode ajustar depois com a equipe."
-              >
+              <Panel title="Escolha o tratamento" text="Selecione o serviço desejado. Você pode ajustar depois com a equipe.">
                 {servicesLoading && !visibleServices.length ? (
                   <LoadingBlock text="Carregando tratamentos" />
                 ) : (
@@ -288,9 +269,7 @@ function AgendaPage() {
                         >
                           <PremiumServiceIcon slug={s.slug} active={selected} className="mb-4" />
                           <div className="font-serif text-2xl">{s.name}</div>
-                          <div
-                            className={`mt-2 text-sm ${selected ? "text-white/72" : "text-muted-foreground"}`}
-                          >
+                          <div className={`mt-2 text-sm ${selected ? "text-white/72" : "text-muted-foreground"}`}>
                             {s.duration_min} min · {s.price_text}
                           </div>
                         </button>
@@ -302,10 +281,7 @@ function AgendaPage() {
             )}
 
             {step === 1 && (
-              <Panel
-                title="Profissional responsável"
-                text="A clínica organiza internamente o profissional mais adequado para o procedimento."
-              >
+              <Panel title="Profissional responsável" text="A clínica organiza internamente o profissional mais adequado para o procedimento.">
                 <div className="grid gap-4">
                   {PROFESSIONALS.map((item) => {
                     const selected = item.id === professional;
@@ -315,13 +291,9 @@ function AgendaPage() {
                         onClick={() => setProfessional(item.id)}
                         className={`rounded-2xl border p-6 text-left transition-all ${selected ? "border-[var(--petrol)] bg-[var(--clinical-light)]" : "border-border bg-white hover:-translate-y-0.5 hover:border-[var(--gold)]"}`}
                       >
-                        <UserRoundCheck
-                          className={`mb-4 h-7 w-7 ${selected ? "text-[var(--petrol)]" : "text-[var(--gold-dark)]"}`}
-                        />
+                        <UserRoundCheck className={`mb-4 h-7 w-7 ${selected ? "text-[var(--petrol)]" : "text-[var(--gold-dark)]"}`} />
                         <div className="font-serif text-2xl text-[var(--petrol)]">{item.name}</div>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                          {item.text}
-                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
                       </button>
                     );
                   })}
@@ -330,10 +302,7 @@ function AgendaPage() {
             )}
 
             {step === 2 && (
-              <Panel
-                title="Escolha a data"
-                text={`Dias disponíveis para ${selectedService?.name ?? "o atendimento"}.`}
-              >
+              <Panel title="Escolha a data" text={`Dias disponíveis para ${selectedService?.name ?? "o atendimento"}.`}>
                 <Calendar
                   month={month}
                   setMonth={setMonth}
@@ -347,10 +316,7 @@ function AgendaPage() {
             )}
 
             {step === 3 && (
-              <Panel
-                title="Escolha o horário"
-                text={date ? formatLongDate(date) : "Selecione uma data para ver horários."}
-              >
+              <Panel title="Escolha o horário" text={date ? formatLongDate(date) : "Selecione uma data para ver horários."}>
                 {busyLoading ? (
                   <LoadingBlock text="Verificando horários disponíveis" />
                 ) : (
@@ -363,16 +329,9 @@ function AgendaPage() {
                           key={h}
                           disabled={!date || occupied}
                           onClick={() => setTime(h)}
-                          className={`group rounded-2xl border px-4 py-4 text-sm font-semibold transition-all duration-300
-                            ${selected ? "border-[var(--petrol)] bg-[var(--petrol)] text-white shadow-[0_18px_36px_rgb(15_42_58_/_0.22)] ring-4 ring-[var(--clinical-light)]" : ""}
-                            ${!selected && !occupied ? "border-border bg-[var(--ivory)] text-[var(--petrol)] hover:-translate-y-1 hover:border-[var(--gold)] hover:bg-white hover:shadow-[var(--shadow-soft)]" : ""}
-                            ${occupied ? "cursor-not-allowed border-border bg-muted text-muted-foreground/45 line-through" : ""}
-                            ${!date ? "cursor-not-allowed opacity-40" : ""}
-                          `}
+                          className={`group rounded-2xl border px-4 py-4 text-sm font-semibold transition-all duration-300 ${selected ? "border-[var(--petrol)] bg-[var(--petrol)] text-white shadow-[0_18px_36px_rgb(15_42_58_/_0.22)] ring-4 ring-[var(--clinical-light)]" : ""} ${!selected && !occupied ? "border-border bg-[var(--ivory)] text-[var(--petrol)] hover:-translate-y-1 hover:border-[var(--gold)] hover:bg-white hover:shadow-[var(--shadow-soft)]" : ""} ${occupied ? "cursor-not-allowed border-border bg-muted text-muted-foreground/45 line-through" : ""} ${!date ? "cursor-not-allowed opacity-40" : ""}`}
                         >
-                          <Clock3
-                            className={`mx-auto mb-2 h-4 w-4 transition-transform duration-300 ${!occupied ? "group-hover:scale-110" : ""}`}
-                          />
+                          <Clock3 className={`mx-auto mb-2 h-4 w-4 transition-transform duration-300 ${!occupied ? "group-hover:scale-110" : ""}`} />
                           {h}
                         </button>
                       );
@@ -388,47 +347,19 @@ function AgendaPage() {
             )}
 
             {step === 4 && (
-              <Panel
-                title="Confirme seus dados"
-                text="Usaremos essas informações para confirmação e lembrete do horário."
-              >
+              <Panel title="Confirme seus dados" text="Usaremos essas informações para confirmação e lembrete do horário.">
                 <div className="grid gap-5 md:grid-cols-2">
                   <Field label="Nome completo">
-                    <input
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="input"
-                      placeholder="Seu nome"
-                      maxLength={120}
-                    />
+                    <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" placeholder="Seu nome" maxLength={120} />
                   </Field>
                   <Field label="Telefone">
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="input"
-                      placeholder="41988551599"
-                      maxLength={20}
-                    />
+                    <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input" placeholder="41988551599" maxLength={20} />
                   </Field>
                   <Field label="Email" className="md:col-span-2">
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="input"
-                      placeholder="seu@email.com"
-                      maxLength={200}
-                    />
+                    <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input" placeholder="seu@email.com" maxLength={200} />
                   </Field>
                   <Field label="Observações (opcional)" className="md:col-span-2">
-                    <textarea
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      className="input min-h-[100px] resize-none"
-                      placeholder="Conte se existe alguma necessidade importante."
-                      maxLength={500}
-                    />
+                    <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="input min-h-[100px] resize-none" placeholder="Conte se existe alguma necessidade importante." maxLength={500} />
                   </Field>
                 </div>
                 {submitError && (
@@ -444,12 +375,9 @@ function AgendaPage() {
                 <div className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-full bg-[var(--clinical-light)] text-[var(--petrol)]">
                   <CheckCircle2 className="h-10 w-10" />
                 </div>
-                <h2 className="font-serif text-4xl text-[var(--petrol)]">
-                  Agendamento confirmado!
-                </h2>
+                <h2 className="font-serif text-4xl text-[var(--petrol)]">Agendamento confirmado!</h2>
                 <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-                  Recebemos sua solicitação e a equipe terá acesso aos dados no painel
-                  administrativo.
+                  Recebemos sua solicitação e a equipe terá acesso aos dados no painel administrativo.
                 </p>
                 <div className="mx-auto mt-8 max-w-lg rounded-2xl border border-border bg-[var(--ivory)] p-6 text-left">
                   {[
@@ -460,10 +388,7 @@ function AgendaPage() {
                     ["Nome", form.name],
                     ["Código", confirmedId?.slice(0, 8).toUpperCase() ?? "-"],
                   ].map(([k, v]) => (
-                    <div
-                      key={k}
-                      className="flex justify-between gap-4 border-b border-border py-2 text-sm last:border-b-0"
-                    >
+                    <div key={k} className="flex justify-between gap-4 border-b border-border py-2 text-sm last:border-b-0">
                       <span className="text-muted-foreground">{k}</span>
                       <span className="text-right font-semibold text-[var(--petrol)]">{v}</span>
                     </div>
@@ -482,21 +407,12 @@ function AgendaPage() {
                   Voltar
                 </button>
                 {step === 4 ? (
-                  <button
-                    onClick={submit}
-                    disabled={!canNext || submitting}
-                    className="btn-luxe disabled:cursor-not-allowed disabled:opacity-50"
-                  >
+                  <button onClick={submit} disabled={!canNext || submitting} className="btn-luxe disabled:cursor-not-allowed disabled:opacity-50">
                     {submitting ? "Enviando..." : "Agendar horário"}
                   </button>
                 ) : (
-                  <button
-                    onClick={() => setStep((s) => s + 1)}
-                    disabled={!canNext}
-                    className="btn-luxe disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Continuar
-                    <ArrowIcon />
+                  <button onClick={() => setStep((s) => s + 1)} disabled={!canNext} className="btn-luxe disabled:cursor-not-allowed disabled:opacity-50">
+                    Continuar <span aria-hidden="true">→</span>
                   </button>
                 )}
               </div>
@@ -509,15 +425,7 @@ function AgendaPage() {
   );
 }
 
-function Panel({
-  title,
-  text,
-  children,
-}: {
-  title: string;
-  text: string;
-  children: React.ReactNode;
-}) {
+function Panel({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (
     <div>
       <div className="mb-6">
@@ -529,20 +437,10 @@ function Panel({
   );
 }
 
-function Field({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
+function Field({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
   return (
     <label className={`flex flex-col gap-1.5 ${className}`}>
-      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-        {label}
-      </span>
+      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{label}</span>
       {children}
     </label>
   );
@@ -568,10 +466,6 @@ function Legend({ color, label }: { color: string; label: string }) {
   );
 }
 
-function ArrowIcon() {
-  return <span aria-hidden="true">→</span>;
-}
-
 function Calendar({
   month,
   setMonth,
@@ -588,39 +482,28 @@ function Calendar({
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-  const first = new Date(month);
-  const startWeekday = first.getDay();
+  const startWeekday = new Date(month).getDay();
   const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const cells: (Date | null)[] = [];
   for (let i = 0; i < startWeekday; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++)
-    cells.push(new Date(month.getFullYear(), month.getMonth(), d));
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(month.getFullYear(), month.getMonth(), d));
 
   return (
     <div className="rounded-[1.5rem] border border-border bg-[var(--ivory)] p-5">
       <div className="mb-4 flex items-center justify-between">
-        <button
-          onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
-          className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-lg transition-colors hover:bg-primary hover:text-primary-foreground"
-        >
+        <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-lg transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Mês anterior">
           ‹
         </button>
         <div className="font-serif text-xl capitalize text-[var(--petrol)]">
           {month.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
         </div>
-        <button
-          onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
-          className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-lg transition-colors hover:bg-primary hover:text-primary-foreground"
-        >
+        <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-lg transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Próximo mês">
           ›
         </button>
       </div>
       <div className="grid grid-cols-7 gap-2 text-center">
         {WEEKDAYS.map((w) => (
-          <div
-            key={w}
-            className="py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
-          >
+          <div key={w} className="py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {w}
           </div>
         ))}
@@ -636,12 +519,7 @@ function Calendar({
               key={i}
               disabled={disabled}
               onClick={() => onChange(d)}
-              className={`rounded-xl py-3 text-sm font-semibold transition-all
-                ${selected ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)]" : ""}
-                ${!selected && !disabled ? "bg-white text-[var(--petrol)] hover:-translate-y-0.5 hover:bg-[var(--clinical-light)]" : ""}
-                ${disabled ? "cursor-not-allowed text-muted-foreground/35" : ""}
-                ${isToday && !selected ? "ring-1 ring-[var(--gold)]" : ""}
-              `}
+              className={`rounded-xl py-3 text-sm font-semibold transition-all ${selected ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)]" : ""} ${!selected && !disabled ? "bg-white text-[var(--petrol)] hover:-translate-y-0.5 hover:bg-[var(--clinical-light)]" : ""} ${disabled ? "cursor-not-allowed text-muted-foreground/35" : ""} ${isToday && !selected ? "ring-1 ring-[var(--gold)]" : ""}`}
             >
               {d.getDate()}
             </button>

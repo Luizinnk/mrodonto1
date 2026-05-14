@@ -456,6 +456,8 @@
     radial-gradient(circle at 55% 22%, rgb(200 163 106 / 0.16), transparent 34%),
     linear-gradient(145deg, #0f2a3a, #071a25);
   color: var(--gold-light);
+  overflow: hidden;
+  padding: 0.12rem;
   box-shadow:
     0 18px 40px rgb(15 42 58 / 0.16),
     inset 0 1px 0 rgb(255 255 255 / 0.08);
@@ -465,14 +467,13 @@
     border-color 0.3s ease;
 }
 
-.premium-service-icon svg {
-  width: 2.35rem;
-  height: 2.35rem;
-  stroke: currentColor;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 8px rgb(200 163 106 / 0.18));
+.premium-service-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.86rem;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.02) contrast(1.03);
 }
 
 .group:hover .premium-service-icon,
@@ -655,6 +656,48 @@
 }
 
 @media (max-width: 768px) {
+  .agenda-page {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .agenda-page h1 {
+    font-size: clamp(2.4rem, 12vw, 3.5rem);
+    line-height: 0.95;
+  }
+
+  .agenda-shell {
+    border-radius: 1.25rem;
+  }
+
+  .agenda-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agenda-steps > div {
+    gap: 0.55rem;
+    padding: 0.8rem;
+  }
+
+  .agenda-steps span:last-child {
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+  }
+
+  .agenda-page .btn-luxe {
+    min-height: 3rem;
+    padding-inline: 1rem;
+  }
+
+  .agenda-page .input {
+    font-size: 16px;
+  }
+
+  .premium-service-icon {
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 0.9rem;
+  }
+
   .hero-premium .relative.mx-auto.grid {
     min-height: auto;
     gap: 2rem;

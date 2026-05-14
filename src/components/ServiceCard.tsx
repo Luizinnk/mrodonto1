@@ -22,7 +22,7 @@ export function ServiceCard({ service: s }: { service: Service }) {
   return (
     <article className="group pro-card relative overflow-hidden rounded-[1.35rem] bg-white p-6">
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--clinical)]/55 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="relative mb-4 flex items-center justify-between gap-3">
         <PremiumServiceIcon slug={s.slug} />
         <span className="max-w-[150px] rounded-full border border-[var(--border)] bg-[var(--ivory)] px-3 py-1 text-right text-[10px] uppercase tracking-[0.14em] text-[var(--gold-dark)]">
           {meta.label}
