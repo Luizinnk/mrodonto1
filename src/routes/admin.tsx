@@ -47,6 +47,16 @@ const STATUS_LABEL: Record<AppointmentStatus, string> = {
 };
 
 const SPREADSHEET_URL = import.meta.env.VITE_CLIENTS_SPREADSHEET_URL as string | undefined;
+
+function withTimeout<T>(promise: Promise<T>, ms = 10000, label = "Supabase") {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} demorou para responder.`)), ms);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+}
+
 function escapeHtml(value: unknown) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -160,14 +170,23 @@ function AdminPage() {
     queryKey: ["appointments"],
     enabled: !!user && isAdmin,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("appointments")
-        .select(
-          "id, scheduled_at, customer_name, customer_email, customer_phone, notes, status, created_at, reminder_sent_at, customer_confirmed_at, service:services(name, icon)",
-        )
-        .order("scheduled_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as Row[];
+      try {
+        const { data, error } = await withTimeout(
+          supabase
+            .from("appointments")
+            .select(
+              "id, scheduled_at, customer_name, customer_email, customer_phone, notes, status, created_at, reminder_sent_at, customer_confirmed_at, service:services(name, icon)",
+            )
+            .order("scheduled_at", { ascending: false }),
+          10000,
+          "Agendamentos",
+        );
+        if (error) throw error;
+        return data as unknown as Row[];
+      } catch (error) {
+        console.warn("Appointments table unavailable:", error);
+        return [] as Row[];
+      }
     },
   });
 
@@ -175,17 +194,23 @@ function AdminPage() {
     queryKey: ["clients"],
     enabled: !!user && isAdmin,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select(
-          "id, full_name, email, phone, desired_procedure, important_notes, next_appointment_at, last_appointment_at, total_appointments, created_at",
-        )
-        .order("updated_at", { ascending: false });
-      if (error) {
-        console.warn("Clients table unavailable:", error.message);
+      try {
+        const { data, error } = await withTimeout(
+          supabase
+            .from("clients")
+            .select(
+              "id, full_name, email, phone, desired_procedure, important_notes, next_appointment_at, last_appointment_at, total_appointments, created_at",
+            )
+            .order("updated_at", { ascending: false }),
+          10000,
+          "Clientes",
+        );
+        if (error) throw error;
+        return data as ClientRow[];
+      } catch (error) {
+        console.warn("Clients table unavailable:", error);
         return [] as ClientRow[];
       }
-      return data as ClientRow[];
     },
   });
 
@@ -193,13 +218,24 @@ function AdminPage() {
     queryKey: ["admin-access-request", user?.id],
     enabled: !!user && !isAdmin,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("admin_access_requests")
-        .select("id, user_id, email, full_name, status, requested_at, reviewed_at, reviewer_note")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data as AdminAccessRequest | null;
+      try {
+        const { data, error } = await withTimeout(
+          supabase
+            .from("admin_access_requests")
+            .select(
+              "id, user_id, email, full_name, status, requested_at, reviewed_at, reviewer_note",
+            )
+            .eq("user_id", user!.id)
+            .maybeSingle(),
+          10000,
+          "Solicitacao de acesso",
+        );
+        if (error) throw error;
+        return data as AdminAccessRequest | null;
+      } catch (error) {
+        console.warn("Admin access request unavailable:", error);
+        return null;
+      }
     },
   });
 

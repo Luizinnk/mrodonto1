@@ -4,8 +4,9 @@
 
 O projeto já aponta para este Supabase:
 
-- Projeto: `tmtoqlbhpcqjkuqgamah`
-- Dashboard: https://supabase.com/dashboard/project/tmtoqlbhpcqjkuqgamah
+- Projeto: `fgjozrjhgdnsiqbtjdpw`
+- URL: `https://fgjozrjhgdnsiqbtjdpw.supabase.co`
+- Dashboard: https://supabase.com/dashboard/project/fgjozrjhgdnsiqbtjdpw
 - Tabelas principais: `appointments`, `services`, `user_roles`, `profiles`, `admin_access_requests`
 
 Para acessar o banco, entre no Supabase com o email dono do projeto e abra **Table Editor**. O botão **Banco de dados** no painel admin também direciona para esse dashboard.
@@ -62,7 +63,7 @@ supabase secrets set APP_PUBLIC_URL="https://seudominio.com"
 No painel Supabase, crie um scheduled job/cron para chamar:
 
 ```text
-https://tmtoqlbhpcqjkuqgamah.supabase.co/functions/v1/send-appointment-reminders
+https://fgjozrjhgdnsiqbtjdpw.supabase.co/functions/v1/send-appointment-reminders
 ```
 
 Cron UTC:

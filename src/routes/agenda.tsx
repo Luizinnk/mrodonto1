@@ -63,6 +63,11 @@ type BusySlotRow = {
   scheduled_at: string;
 };
 
+type ServiceLookupRow = {
+  id: string;
+  name: string;
+};
+
 function withTimeout<T>(promise: Promise<T>, ms = 12000, label = "Supabase") {
   let timeoutId: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
@@ -108,15 +113,24 @@ function AgendaPage() {
       start.setHours(0, 0, 0, 0);
       const end = new Date(date);
       end.setHours(23, 59, 59, 999);
-      const { data, error } = await supabase
-        .from("busy_slots")
-        .select("scheduled_at")
-        .gte("scheduled_at", start.toISOString())
-        .lte("scheduled_at", end.toISOString());
-      if (error) throw error;
-      return ((data ?? []) as BusySlotRow[]).map((slot) =>
-        new Date(slot.scheduled_at).toTimeString().slice(0, 5),
-      );
+      try {
+        const { data, error } = await withTimeout(
+          supabase
+            .from("busy_slots")
+            .select("scheduled_at")
+            .gte("scheduled_at", start.toISOString())
+            .lte("scheduled_at", end.toISOString()),
+          7000,
+          "Horarios ocupados",
+        );
+        if (error) throw error;
+        return ((data ?? []) as BusySlotRow[]).map((slot) =>
+          new Date(slot.scheduled_at).toTimeString().slice(0, 5),
+        );
+      } catch (error) {
+        console.warn("[Agenda] Nao foi possivel carregar horarios ocupados:", error);
+        return [];
+      }
     },
   });
 
@@ -135,9 +149,27 @@ function AgendaPage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const { data: serviceRow, error: serviceError } = await withTimeout(
+        supabase
+          .from("services")
+          .select("id, name")
+          .eq("slug", selectedService.slug)
+          .eq("active", true)
+          .maybeSingle(),
+        8000,
+        "Servicos",
+      );
+      if (serviceError) throw serviceError;
+      if (!serviceRow) {
+        throw new Error(
+          "SERVICES_NOT_CONFIGURED: os servicos ainda nao foram cadastrados no Supabase.",
+        );
+      }
+
       const [h, m] = time.split(":").map(Number);
       const dt = new Date(date);
       dt.setHours(h, m, 0, 0);
+      const resolvedService = serviceRow as ServiceLookupRow;
       const notes = [form.notes.trim(), `Profissional/triagem: ${selectedProfessional.name}`]
         .filter(Boolean)
         .join("\n");
@@ -145,7 +177,7 @@ function AgendaPage() {
         supabase
           .from("appointments")
           .insert({
-            service_id: selectedService.id,
+            service_id: resolvedService.id,
             scheduled_at: dt.toISOString(),
             customer_name: form.name.trim(),
             customer_email: form.email.trim(),
@@ -165,9 +197,11 @@ function AgendaPage() {
     } catch (error) {
       console.error("[Agenda] Falha ao confirmar agendamento:", error);
       const message =
-        error instanceof Error && /row-level security|policy|permission/i.test(error.message)
-          ? "O banco de dados bloqueou o agendamento. Aplique a SQL de liberacao no Supabase e tente novamente."
-          : "Nao consegui confirmar agora. Tente novamente ou chame a equipe no WhatsApp.";
+        error instanceof Error && error.message.includes("SERVICES_NOT_CONFIGURED")
+          ? "O novo Supabase ainda nao tem os servicos cadastrados. Rode as migrations antes de testar o agendamento."
+          : error instanceof Error && /row-level security|policy|permission/i.test(error.message)
+            ? "O banco de dados bloqueou o agendamento. Aplique a SQL de liberacao no Supabase e tente novamente."
+            : "Nao consegui confirmar agora. Tente novamente ou chame a equipe no WhatsApp.";
       setSubmitError(message);
       toast.error(message);
     } finally {
