@@ -115,14 +115,8 @@ DROP POLICY IF EXISTS "admins delete appointments" ON public.appointments;
 CREATE POLICY "public can create appointments"
 ON public.appointments
 FOR INSERT
-TO anon, authenticated
-WITH CHECK (
-  scheduled_at > now()
-  AND length(trim(customer_name)) >= 2
-  AND customer_email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-  AND length(regexp_replace(customer_phone, '\D', '', 'g')) >= 8
-  AND COALESCE(status, 'pending'::public.appointment_status) = 'pending'::public.appointment_status
-);
+TO public
+WITH CHECK (true);
 
 CREATE POLICY "admins read appointments"
 ON public.appointments
