@@ -27,6 +27,13 @@ Deno.serve(async (req) => {
         .from("user_roles")
         .upsert({ user_id: request.user_id, role: "admin" }, { onConflict: "user_id,role" });
       if (roleError) throw roleError;
+    } else {
+      const { error: roleDeleteError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", request.user_id)
+        .eq("role", "admin");
+      if (roleDeleteError) throw roleDeleteError;
     }
 
     const { error: updateError } = await supabase

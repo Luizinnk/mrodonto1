@@ -19,7 +19,7 @@ const iconBySlug: Record<string, PremiumIconName> = {
   botox: "botox",
   preenchimento: "preenchimento",
   facetas: "facetas",
-  lentes: "facetas",
+  lentes: "lentes",
   personalizado: "personalizado",
   plano: "personalizado",
 };

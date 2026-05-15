@@ -1,8 +1,8 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { CheckCircle2, LockKeyhole, MailCheck } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Acesso administrativo | MR Odontologia" }] }),
@@ -21,64 +21,75 @@ function LoginPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
     if (mode === "signin") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (error)
-        return toast.error(
-          "Email ou senha inválidos. Use recuperar senha ou crie a conta novamente.",
-        );
+      if (error) {
+        toast.error("Email ou senha inválidos. Use recuperar senha ou crie a conta novamente.");
+        return;
+      }
       toast.success("Bem-vinda(o)!");
       navigate({ to: "/admin" });
-    } else if (mode === "reset") {
+      return;
+    }
+
+    if (mode === "reset") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login`,
       });
       setLoading(false);
-      if (error) return toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
       toast.success("Enviamos o link de recuperação para seu email.");
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/admin`,
-          data: { full_name: name },
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/admin`,
+        data: { full_name: name },
+      },
+    });
+
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+
+    if (data.user) {
+      const { error: requestError } = await supabase.functions.invoke("request-admin-access", {
+        body: {
+          userId: data.user.id,
+          email,
+          name,
         },
       });
-      if (error) {
-        setLoading(false);
-        return toast.error(error.message);
-      }
 
-      if (data.user) {
-        const { error: requestError } = await supabase.functions.invoke("request-admin-access", {
-          body: {
-            userId: data.user.id,
-            email,
-            name,
-          },
-        });
-        if (requestError) {
-          toast.warning(
-            "Conta criada, mas o email de aprovação ainda precisa ser configurado no Supabase.",
-          );
-        } else {
-          toast.success("Solicitação enviada para aprovação.");
-        }
+      if (requestError) {
+        toast.warning(
+          "Conta criada. A solicitação ficou pendente no banco, mas o envio de email precisa estar configurado no Supabase.",
+        );
+      } else {
+        toast.success("Solicitação enviada para aprovação.");
       }
-
-      setLoading(false);
-      setRequestSent(true);
     }
+
+    setLoading(false);
+    setRequestSent(true);
   }
 
   return (
-    <section className="min-h-[calc(100vh-72px)] grid place-items-center px-6 py-20 bg-[var(--ivory)] clinical-grid">
-      <div className="w-full max-w-md bg-card rounded-3xl shadow-[var(--shadow-luxe)] border border-white/70 p-10 animate-fade-up">
-        <div className="text-center mb-8">
+    <section className="clinical-grid grid min-h-[calc(100vh-72px)] place-items-center bg-[var(--ivory)] px-6 py-20">
+      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-card p-10 shadow-[var(--shadow-luxe)] animate-fade-up">
+        <div className="mb-8 text-center">
           <span className="section-kicker">Painel administrativo</span>
-          <h1 className="text-3xl mt-2">
+          <h1 className="mt-2 text-3xl">
             {mode === "signin" && "Entrar"}
             {mode === "signup" && "Criar conta"}
             {mode === "reset" && "Recuperar senha"}
@@ -87,7 +98,7 @@ function LoginPage() {
 
         {requestSent && (
           <div className="mb-6 rounded-2xl border border-[var(--clinical-light)] bg-[var(--clinical-light)]/60 p-5 text-sm text-[var(--clinical-strong)]">
-            <div className="flex items-center gap-2 font-semibold mb-2">
+            <div className="mb-2 flex items-center gap-2 font-semibold">
               <MailCheck className="h-4 w-4" />
               Solicitação enviada
             </div>
@@ -131,36 +142,24 @@ function LoginPage() {
             ) : (
               <CheckCircle2 className="h-4 w-4" />
             )}
-            {loading && "Aguarde…"}
+            {loading && "Aguarde..."}
             {!loading && mode === "signin" && "Entrar"}
             {!loading && mode === "signup" && "Criar conta e solicitar aprovação"}
             {!loading && mode === "reset" && "Enviar link de recuperação"}
           </button>
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
             {mode !== "signup" && (
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className="hover:text-foreground"
-              >
+              <button type="button" onClick={() => setMode("signup")} className="hover:text-foreground">
                 Criar conta
               </button>
             )}
             {mode !== "reset" && (
-              <button
-                type="button"
-                onClick={() => setMode("reset")}
-                className="hover:text-foreground"
-              >
+              <button type="button" onClick={() => setMode("reset")} className="hover:text-foreground">
                 Esqueci a senha
               </button>
             )}
             {mode !== "signin" && (
-              <button
-                type="button"
-                onClick={() => setMode("signin")}
-                className="hover:text-foreground"
-              >
+              <button type="button" onClick={() => setMode("signin")} className="hover:text-foreground">
                 Entrar
               </button>
             )}

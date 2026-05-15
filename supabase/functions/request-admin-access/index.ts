@@ -18,9 +18,16 @@ Deno.serve(async (req) => {
           user_id: userId,
           email,
           full_name: name ?? null,
-          status: "pending",
-          reviewed_at: null,
-          reviewer_note: null,
+          status:
+            email.toLowerCase() === "luiznovakiresner228@gmail.com" ? "approved" : "pending",
+          reviewed_at:
+            email.toLowerCase() === "luiznovakiresner228@gmail.com"
+              ? new Date().toISOString()
+              : null,
+          reviewer_note:
+            email.toLowerCase() === "luiznovakiresner228@gmail.com"
+              ? "Acesso principal aprovado automaticamente."
+              : null,
         },
         { onConflict: "user_id" },
       )
